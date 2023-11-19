@@ -14,7 +14,10 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (192, 192, 192)
 
+#Images
 
+flag_image = pygame.image.load(r"C:\Users\Harish Vasanth\Desktop\Formula-Minesweeper-AI\images\flag-Pixel.jpg")  # Replace with the path to your flag image
+flag_image = pygame.transform.scale(flag_image, (CELL_SIZE, CELL_SIZE))
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Minesweeper")
@@ -55,6 +58,11 @@ class boardUI():
             for col in range(GRID_SIZE):
                 value = board[row][col]
                 uncovered = revealedBoard[row][col]
+
+                if flagBoard[row][col] == True:
+                    boardUI.drawFlag(row,col)
+                    
+
                 if value == -1 and uncovered == True:
                     boardUI.drawCircle(row,col)
                 elif value >= 0 and uncovered == True:
@@ -69,9 +77,42 @@ class boardUI():
         text_rect = text.get_rect(center=(col * CELL_SIZE + CELL_SIZE // 2, row * CELL_SIZE + CELL_SIZE // 2))
         screen.blit(text, text_rect)
 
+    def drawFlag(row,col):
+        flag_rect = flag_image.get_rect(topleft=(col * CELL_SIZE, row * CELL_SIZE))
+        screen.blit(flag_image, flag_rect)
+
+
+
+
+class gameInteraction():
+
+    def revealAllBombs(board,revealedBoard):
+        for row in range(GRID_SIZE):
+            for col in range(GRID_SIZE):
+                value = board[row][col]
+
+                if value == -1:
+                    revealedBoard[row][col] =True
+    
+    def flag(row,col,revealedBoard,flagBoard):
+        if revealedBoard[row][col] == True:
+            return
+        else:
+            flagBoard[row][col] = True
+
+        
+
+
+
+
+
+
 board = boardUI.initializeBoard()
 revealedBoard = [[False] * GRID_SIZE for _ in range(GRID_SIZE)]
+flagBoard = [[False] * GRID_SIZE for _ in range(GRID_SIZE)]
 game_over = False
+
+
 
 
 
@@ -104,11 +145,16 @@ while(True):
                     else:
                         revealedBoard[row][col] = True
                 elif event.button == 3:  # Right mouse button (flag)
-                    flags[row][col] = not flags[row][col]
+                    gameInteraction.flag(row,col,revealedBoard,flagBoard)
                 elif event.button == 2:  # Middle mouse button for utility.
                     mark_mine(board, row, col)
 
         
+
+
+        if game_over:
+            gameInteraction.revealAllBombs(board,revealedBoard)
+
         screen.fill(WHITE)
         boardUI.drawGrid()
         boardUI.drawBoard(board,revealedBoard)
