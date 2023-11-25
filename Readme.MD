@@ -1,6 +1,5 @@
 # Minesweeper AI
 
-![Minesweeper AI Demo](link-to-demo-gif-or-image)
 
 ## Overview
 
