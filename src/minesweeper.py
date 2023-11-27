@@ -1,11 +1,11 @@
-from typing import Self
 import pygame
 import sys
 import random
 import time
 from queue import Queue
+import os
 
-
+global game_over
 
 
 pygame.init()
@@ -30,10 +30,10 @@ OFFSET = 50
 
 #Images
 
-flag_image = pygame.image.load(r"C:\Users\Harish Vasanth\Desktop\Formula-Minesweeper-AI\images\flag-Pixel.jpg")  # Replace with the path to your flag image
+flag_image = pygame.image.load("images/flag-Pixel.jpg")  # Replace with the path to your flag image
 flag_image = pygame.transform.scale(flag_image, (CELL_SIZE-20, CELL_SIZE-20))
 
-bomb_image = pygame.image.load(r"C:\Users\Harish Vasanth\Desktop\Formula-Minesweeper-AI\images\mine.png")  # Replace with the path to your bomb image
+bomb_image = pygame.image.load("images/mine.png")  # Replace with the path to your bomb image
 bomb_image = pygame.transform.scale(bomb_image, (CELL_SIZE-20, CELL_SIZE-20))
 
 
@@ -164,7 +164,6 @@ class gameInteraction():
         gameInteraction.getNeigbourCoordinates(row,col,neighbors)
         while (neighbors.empty() != True ):
             neighbor = neighbors.get()
-            print(neighbor)
             revealedBoard[neighbor[0]][neighbor[1]] = True
             if board[neighbor[0]][neighbor[1]] == 0:
                 gameInteraction.getNeigbourCoordinates(neighbor[0],neighbor[1],neighbors)
@@ -188,17 +187,49 @@ class gameInteraction():
         
         
 
-class AiInteraction(Self):
+class AiInteraction():
 
     # A class for all the AI interaction we will have 
 
     def score(board,revealedBoard):
+        score = 0
+        for row in range(len(revealedBoard)) :
+            for col in range(len(revealedBoard)):
+                if revealedBoard[row][col] == True :
+                    score+=10
 
-        return
-    
-    def move(board):
-        ## We will have 3 moves . 0 -  Flag . 1 - Reveal . 2 - Unflag
+
+        if game_over :
+            score -=1000 # The loss needs to be greated than NUM_BOMBS * 10
+
+        return score
+
+    def get_output_board(board,revealedBoard) : 
+
+        output_board = [-2 * GRID_SIZE for _ in range(GRID_SIZE)]
+        # -2 represents that the AI can do what ever it wants to it.
+
+        for row in range(len(revealedBoard)) :
+            for col in range(len(revealedBoard)):
+                if revealedBoard[row][col] == True :
+                    output_board[row][col] = board[row][col]
         
+        
+    
+    def move(board,revealedBoard,move,row,col):
+        ## We will have 3 moves . 1 -  Flag . 0 - Reveal
+        
+        if move == 1:  # Left mouse button 
+                    if board[row][col] == -1:
+                        game_over = True
+                    else:
+                        revealedBoard[row][col] = True
+                    
+                    if board[row][col] == 0:
+                        gameInteraction.clearSurroundingGrids(row,col,board,revealedBoard)
+        
+        elif move == 3:  # Right mouse button (flag)
+                    gameInteraction.flag(row,col,revealedBoard,flagBoard)
         return
 
     def restart():
@@ -265,6 +296,7 @@ while(True):
             gameInteraction.revealAllBombs(board,revealedBoard)
 
         screen.fill(WHITE)
+        print(AiInteraction.score(board,revealedBoard))
         boardUI.drawGrid()
         boardUI.drawBoard(board,revealedBoard)
 
