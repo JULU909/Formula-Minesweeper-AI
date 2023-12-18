@@ -49,7 +49,8 @@ elapsed_time = 0
 
 
 class boardUI():
-    def __init__():
+    def __init__(self) -> None:
+        
         return
 
     def drawGrid():
@@ -233,7 +234,12 @@ class AiInteraction():
         return
 
     def restart():
-        return
+        board = boardUI.initializeBoard()
+        revealedBoard = [[False] * GRID_SIZE for _ in range(GRID_SIZE)]
+        flagBoard = [[False] * GRID_SIZE for _ in range(GRID_SIZE)]
+        game_over = False
+        print("restarting")
+        return board,revealedBoard,flagBoard,game_over
     
 
 
