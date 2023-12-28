@@ -12,6 +12,7 @@ MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
 LR = 0.001
 
+print("Agent.py")
 
 def debugging():
     for i in range (5):
@@ -51,8 +52,7 @@ def train():
 
 if __name__ == '__main__':
     print("Agent.py")
-    debugging()
-    
+  
     
 class Agent:
 

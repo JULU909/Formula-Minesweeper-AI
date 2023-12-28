@@ -80,7 +80,7 @@ class boardUI():
         return board
 
     # Function to draw the Minesweeper board
-    def drawBoard(board,revealedBoard):
+    def drawBoard(board,revealedBoard,flagBoard):
         gameInteraction.updateTimer()
         for row in range(GRID_SIZE):
             for col in range(GRID_SIZE):
@@ -142,7 +142,7 @@ class gameInteraction():
         screen.blit(text, text_rect)
 
 
-    def getNeigbourCoordinates(row,col,neighbors_queue):
+    def getNeigbourCoordinates(row,col,neighbors_queue,revealedBoard):
         
     
         for row_offset in range(-1, 2):
@@ -162,12 +162,12 @@ class gameInteraction():
 
     def clearSurroundingGrids(row,col,board,revealedBoard):
         neighbors = Queue()
-        gameInteraction.getNeigbourCoordinates(row,col,neighbors)
+        gameInteraction.getNeigbourCoordinates(row,col,neighbors,revealedBoard)
         while (neighbors.empty() != True ):
             neighbor = neighbors.get()
             revealedBoard[neighbor[0]][neighbor[1]] = True
             if board[neighbor[0]][neighbor[1]] == 0:
-                gameInteraction.getNeigbourCoordinates(neighbor[0],neighbor[1],neighbors)
+                gameInteraction.getNeigbourCoordinates(neighbor[0],neighbor[1],neighbors,revealedBoard)
 
 
 
@@ -192,7 +192,7 @@ class AiInteraction():
 
     # A class for all the AI interaction we will have 
 
-    def score(board,revealedBoard):
+    def score(board,revealedBoard,game_over):
         score = 0
         for row in range(len(revealedBoard)) :
             for col in range(len(revealedBoard)):
@@ -217,7 +217,7 @@ class AiInteraction():
         
         
     
-    def move(board,revealedBoard,move,row,col):
+    def move(board,revealedBoard,move,row,col,flagBoard):
         ## We will have 3 moves . 1 -  Flag . 0 - Reveal
         
         if move == 1:  # Left mouse button 
@@ -241,75 +241,4 @@ class AiInteraction():
         print("restarting")
         return board,revealedBoard,flagBoard,game_over
     
-
-
-
-
-
-board = boardUI.initializeBoard()
-revealedBoard = [[False] * GRID_SIZE for _ in range(GRID_SIZE)]
-flagBoard = [[False] * GRID_SIZE for _ in range(GRID_SIZE)]
-game_over = False
-
-
-
-
-
-
-
-
-
-
-
-
-
-gameInteraction.startTimer()
-
-
-while(True):
-    
-
-    for event in pygame.event.get():
-        
-        if game_over:
-            gameInteraction.gameOverDialouge(10)
-            
-
-        if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
-                x, y = event.pos
-                col, row = x // CELL_SIZE, (y-OFFSET) // CELL_SIZE ## Row and col they clicked on
-
-                if event.button == 1:  # Left mouse button 
-                    if board[row][col] == -1:
-                        game_over = True
-                    else:
-                        revealedBoard[row][col] = True
-                    
-                    if board[row][col] == 0:
-                        gameInteraction.clearSurroundingGrids(row,col,board,revealedBoard)
-                        continue    
-                elif event.button == 3:  # Right mouse button (flag)
-                    gameInteraction.flag(row,col,revealedBoard,flagBoard)
-    
-        
-
-
-        if game_over:
-            gameInteraction.revealAllBombs(board,revealedBoard)
-
-        screen.fill(WHITE)
-        print(AiInteraction.score(board,revealedBoard))
-        boardUI.drawGrid()
-        boardUI.drawBoard(board,revealedBoard)
-
-        pygame.display.flip()
-        
-
-
-    
-
 
